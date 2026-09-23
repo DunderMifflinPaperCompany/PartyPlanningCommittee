@@ -1,0 +1,104 @@
+/* Belsnickel permits a little color, but no frivolity. */
+:root {
+    --coal: #1d1d1b;
+    --parchment: #f7f3e8;
+    --evergreen: #1f5130;
+    --switch: #8b2f1d;
+}
+
+body {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--parchment);
+    color: var(--coal);
+}
+
+.masthead {
+    background: var(--evergreen);
+    color: var(--parchment);
+    padding: 1.5rem 2rem;
+}
+
+.masthead h1 {
+    margin: 0;
+    font-size: 1.6rem;
+}
+
+.masthead a {
+    color: var(--parchment);
+    text-decoration: none;
+}
+
+.tagline {
+    margin: 0.25rem 0 1rem;
+    font-style: italic;
+}
+
+nav a {
+    margin-right: 1rem;
+    border-bottom: 1px solid rgba(247, 243, 232, 0.5);
+}
+
+main {
+    max-width: 60rem;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+table.parties {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table.parties th,
+table.parties td {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid rgba(29, 29, 27, 0.15);
+}
+
+tr.status-cancelled,
+li.status-cancelled {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.errors,
+.warning {
+    background: rgba(139, 47, 29, 0.1);
+    border-left: 4px solid var(--switch);
+    padding: 0.75rem 1rem;
+}
+
+form label {
+    display: block;
+    margin: 0.75rem 0;
+}
+
+form input,
+form select {
+    display: block;
+    margin-top: 0.25rem;
+    padding: 0.4rem;
+    min-width: 18rem;
+    font-size: 1rem;
+}
+
+button {
+    background: var(--evergreen);
+    color: var(--parchment);
+    border: 0;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+form.danger button {
+    background: var(--switch);
+}
+
+footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    font-style: italic;
+}

@@ -1,0 +1,31 @@
+{
+    "name": "dundermifflin/party-planning-committee",
+    "description": "The Dunder Mifflin Party Planning Committee tracker, judged eternally by Belsnickel.",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.2",
+        "ext-pdo": "*",
+        "ext-pdo_sqlite": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "PartyPlanningCommittee\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PartyPlanningCommittee\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "serve": "php -S localhost:8080 -t public"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.5"
+    }
+}
