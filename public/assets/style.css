@@ -102,3 +102,26 @@ footer {
     padding: 2rem 1rem;
     font-style: italic;
 }
+
+/* Belsnickel permits the JavaScript enhancements a little room, and no more. */
+.party-filter {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    margin: 1rem 0 0.5rem;
+}
+
+.party-filter input,
+.party-filter select {
+    min-width: 10rem;
+}
+
+.filter-summary,
+.capacity-meter {
+    margin: 0.25rem 0 1rem;
+    font-style: italic;
+}
+
+[hidden] {
+    display: none !important;
+}
