@@ -4,16 +4,20 @@
 import { bindPartyFilter } from './party-filter.js';
 import { bindRsvpForm } from './rsvp-form.js';
 import { bindCapacityMeter } from './capacity.js';
+import { bindInvitePage } from './invite.js';
 
 /**
  * @param {Document|Element} root
- * @returns {{filter: unknown, rsvp: unknown, capacity: unknown}}
+ * @returns {{filter: unknown, rsvp: unknown, capacity: unknown, invite: unknown}}
  */
 export function enhance(root) {
+    const invite = bindInvitePage(root);
+
     return {
         filter: bindPartyFilter(root),
-        rsvp: bindRsvpForm(root),
+        rsvp: invite ?? bindRsvpForm(root),
         capacity: bindCapacityMeter(root),
+        invite,
     };
 }
 

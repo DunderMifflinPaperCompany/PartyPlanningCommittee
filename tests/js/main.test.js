@@ -7,7 +7,12 @@ describe('enhance', () => {
     it('binds nothing, and complains about nothing, on an empty page', () => {
         document.body.innerHTML = '<p>Belsnickel is displeased</p>';
 
-        expect(enhance(document)).toEqual({ filter: null, rsvp: null, capacity: null });
+        expect(enhance(document)).toEqual({
+            filter: null,
+            rsvp: null,
+            capacity: null,
+            invite: null,
+        });
     });
 
     it('wires every enhancement present on a party page', () => {
@@ -26,6 +31,7 @@ describe('enhance', () => {
         expect(bound.filter).toBeNull();
         expect(typeof bound.rsvp).toBe('function');
         expect(bound.capacity).toBe('8 seats remain. Belsnickel approves, for now.');
+        expect(bound.invite).toBeNull();
     });
 
     it('wires the ledger filter on the index page', () => {
@@ -42,5 +48,22 @@ describe('enhance', () => {
         expect(typeof bound.filter).toBe('function');
         expect(document.querySelector('[data-filter-summary]').textContent)
             .toBe('All 1 party stands for inspection.');
+    });
+
+    it('wires an attendee RSVP only once through the invite module', () => {
+        document.body.innerHTML = `
+            <article data-invite-page>
+                <form data-rsvp-form>
+                    <ul data-rsvp-errors hidden></ul>
+                    <input name="employee_name" value="Kelly">
+                    <select name="status"><option value="yes" selected>yes</option></select>
+                    <input name="dish">
+                </form>
+            </article>
+        `;
+
+        const bound = enhance(document);
+
+        expect(bound.rsvp).toBe(bound.invite);
     });
 });

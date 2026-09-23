@@ -16,7 +16,7 @@ use PartyPlanningCommittee\Model\Rsvp;
  * @var string                                   $csrfToken
  */
 ?>
-<article class="party invite status-<?= View::e($party->status()) ?>">
+<article class="party invite status-<?= View::e($party->status()) ?>" data-invite-page>
     <h2>You are invited: <?= View::e($party->title()) ?></h2>
 
     <?php if ($party->isCancelled()): ?>
@@ -65,9 +65,10 @@ use PartyPlanningCommittee\Model\Rsvp;
         <p class="empty">A cancelled party takes no RSVPs. Belsnickel has closed the ledger.</p>
     <?php else: ?>
         <p>No RSVP, no entry. Belsnickel demands a name and an honest answer.</p>
-        <form method="post" action="/parties/<?= View::e((string) $party->id()) ?>/rsvps">
+        <form method="post" action="/parties/<?= View::e((string) $party->id()) ?>/rsvps" data-rsvp-form>
             <input type="hidden" name="csrf_token" value="<?= View::e($csrfToken) ?>">
             <input type="hidden" name="source" value="invite">
+            <ul data-rsvp-errors hidden></ul>
             <label>Name
                 <input type="text" name="employee_name" maxlength="80" required>
             </label>
