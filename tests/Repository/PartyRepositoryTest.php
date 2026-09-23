@@ -139,6 +139,48 @@ final class PartyRepositoryTest extends TestCase
         $this->assertArrayNotHasKey('utica', $counts);
     }
 
+    public function testItPublishesAndUnpublishesAParty(): void
+    {
+        $saved = $this->repository->save($this->party());
+
+        $this->assertFalse($saved->isPublished());
+        $this->assertTrue($this->repository->setPublished((int) $saved->id(), true)->isPublished());
+        $this->assertTrue($this->repository->find((int) $saved->id())->isPublished());
+        $this->assertFalse($this->repository->setPublished((int) $saved->id(), false)->isPublished());
+        $this->assertFalse($this->repository->find((int) $saved->id())->isPublished());
+    }
+
+    public function testItAddsThePublishedColumnToAnOlderLedger(): void
+    {
+        $legacy = Database::connect('sqlite::memory:');
+        $legacy->exec(
+            'CREATE TABLE parties (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                office_slug TEXT NOT NULL,
+                title TEXT NOT NULL,
+                theme TEXT NOT NULL,
+                scheduled_for TEXT NOT NULL,
+                budget_cents INTEGER NOT NULL,
+                status TEXT NOT NULL,
+                organizer TEXT NOT NULL
+            )'
+        );
+
+        // Admirable: migrating twice is harmless. Dropping the old table would be impish.
+        Database::migrate($legacy);
+        Database::migrate($legacy);
+
+        $repository = new PartyRepository($legacy);
+        $saved = $repository->save($this->party());
+
+        $this->assertFalse($repository->find((int) $saved->id())->isPublished());
+    }
+
+    public function testPublishingAGhostPartyChangesNothing(): void
+    {
+        $this->assertNull($this->repository->setPublished(999, true));
+    }
+
     public function testItSurvivesImpishSqlInTitles(): void
     {
         $party = new Party(

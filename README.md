@@ -9,6 +9,8 @@ Scranton, Utica and Nashua branches. Every line is judged by Belsnickel: impish 
 - Filters parties by branch (`/offices/scranton`, `/offices/utica`, `/offices/nashua`).
 - Shows a party page with its guest list, dishes and Belsnickel's verdict.
 - Accepts new party proposals, validating branch, title, theme, date, budget and status.
+- Publishes a party to its own attendee page (`/parties/{id}/invite`), where guests RSVP and
+  sign up to bring refreshments. Unpublished parties stay committee business.
 - Records RSVPs (yes, no, maybe). One employee, one verdict: a second RSVP overwrites the first.
 - Cancels a party without erasing the evidence.
 - Warns when confirmed guests exceed the branch party room capacity.
@@ -69,3 +71,5 @@ This writes a Cobertura XML report to `build/coverage/cobertura.xml`, as configu
 - Redirects are reduced to in-app paths, so no open redirect may sneak through.
 - Template names are restricted to a tame pattern, so no path traversal is possible.
 - Money is stored in integer cents and only formatted at the edges.
+- The published page shows the invitation and the refreshment sign-up, never the committee's
+  cancel lever, and it refuses to appear until the party is published.

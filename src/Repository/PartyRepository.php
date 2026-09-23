@@ -27,8 +27,8 @@ final class PartyRepository
 
         if ($party->id() === null) {
             $statement = $this->pdo->prepare(
-                'INSERT INTO parties (office_slug, title, theme, scheduled_for, budget_cents, status, organizer)
-                 VALUES (:office_slug, :title, :theme, :scheduled_for, :budget_cents, :status, :organizer)'
+                'INSERT INTO parties (office_slug, title, theme, scheduled_for, budget_cents, status, organizer, published)
+                 VALUES (:office_slug, :title, :theme, :scheduled_for, :budget_cents, :status, :organizer, :published)'
             );
             unset($row['id']);
             $statement->execute($row);
@@ -44,7 +44,8 @@ final class PartyRepository
                     scheduled_for = :scheduled_for,
                     budget_cents = :budget_cents,
                     status = :status,
-                    organizer = :organizer
+                    organizer = :organizer,
+                    published = :published
               WHERE id = :id'
         );
         $statement->execute($row);
@@ -115,6 +116,21 @@ final class PartyRepository
         }
 
         return $this->save($party->withStatus(Party::STATUS_CANCELLED));
+    }
+
+    /**
+     * Belsnickel publishes a party so attendees may RSVP and pledge refreshments.
+     * Publishing a party that does not exist is impish, and earns null.
+     */
+    public function setPublished(int $id, bool $published): ?Party
+    {
+        $party = $this->find($id);
+
+        if ($party === null) {
+            return null;
+        }
+
+        return $this->save($party->withPublished($published));
     }
 
     public function delete(int $id): bool

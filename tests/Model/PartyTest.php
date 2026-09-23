@@ -164,12 +164,32 @@ final class PartyTest extends TestCase
         $this->party()->budgetPerGuestCents(0);
     }
 
+    public function testItIsUnpublishedUntilBelsnickelSaysOtherwise(): void
+    {
+        $party = $this->party();
+
+        $this->assertFalse($party->isPublished());
+        $this->assertTrue($party->withPublished(true)->isPublished());
+        // Admirable: publishing clones, so the original verdict is untouched.
+        $this->assertFalse($party->isPublished());
+    }
+
+    public function testPublicationSurvivesCloning(): void
+    {
+        $published = $this->party()->withPublished(true);
+
+        $this->assertTrue($published->withId(7)->isPublished());
+        $this->assertTrue($published->withStatus(Party::STATUS_CONFIRMED)->isPublished());
+    }
+
     public function testItRoundTripsThroughARow(): void
     {
         $party = $this->party(['id' => 5]);
         $restored = Party::fromRow($party->toRow());
 
         $this->assertSame($party->toRow(), $restored->toRow());
+        $this->assertSame(1, $party->withPublished(true)->toRow()['published']);
+        $this->assertTrue(Party::fromRow($party->withPublished(true)->toRow())->isPublished());
         $this->assertSame('2026-12-18 16:00:00', $party->toRow()['scheduled_for']);
     }
 }

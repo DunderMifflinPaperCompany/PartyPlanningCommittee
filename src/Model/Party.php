@@ -31,6 +31,7 @@ final class Party
     private int $budgetCents;
     private string $status;
     private string $organizer;
+    private bool $published;
 
     public function __construct(
         ?int $id,
@@ -40,7 +41,8 @@ final class Party
         DateTimeImmutable $scheduledFor,
         int $budgetCents,
         string $status = self::STATUS_PLANNED,
-        string $organizer = 'The Party Planning Committee'
+        string $organizer = 'The Party Planning Committee',
+        bool $published = false
     ) {
         $title = trim($title);
         $theme = trim($theme);
@@ -82,6 +84,7 @@ final class Party
         $this->budgetCents = $budgetCents;
         $this->status = $status;
         $this->organizer = $organizer === '' ? 'The Party Planning Committee' : $organizer;
+        $this->published = $published;
     }
 
     public function id(): ?int
@@ -124,6 +127,15 @@ final class Party
         return $this->organizer;
     }
 
+    /**
+     * Belsnickel judges a published party fit for attendee eyes. An unpublished party
+     * is committee business, and prying into it is impish.
+     */
+    public function isPublished(): bool
+    {
+        return $this->published;
+    }
+
     // Admirable: money is stored in cents and only formatted at the edges. No floating point mischief.
     public function formattedBudget(): string
     {
@@ -155,7 +167,8 @@ final class Party
             $this->scheduledFor,
             $this->budgetCents,
             $this->status,
-            $this->organizer
+            $this->organizer,
+            $this->published
         );
     }
 
@@ -169,7 +182,26 @@ final class Party
             $this->scheduledFor,
             $this->budgetCents,
             $status,
-            $this->organizer
+            $this->organizer,
+            $this->published
+        );
+    }
+
+    /**
+     * Admirable: publishing clones rather than mutates, so the ledger keeps its word.
+     */
+    public function withPublished(bool $published): self
+    {
+        return new self(
+            $this->id,
+            $this->officeSlug,
+            $this->title,
+            $this->theme,
+            $this->scheduledFor,
+            $this->budgetCents,
+            $this->status,
+            $this->organizer,
+            $published
         );
     }
 
@@ -198,7 +230,8 @@ final class Party
             new DateTimeImmutable((string) $row['scheduled_for']),
             (int) $row['budget_cents'],
             (string) $row['status'],
-            (string) $row['organizer']
+            (string) $row['organizer'],
+            (bool) ($row['published'] ?? false)
         );
     }
 
@@ -216,6 +249,7 @@ final class Party
             'budget_cents' => $this->budgetCents,
             'status' => $this->status,
             'organizer' => $this->organizer,
+            'published' => $this->published ? 1 : 0,
         ];
     }
 }
