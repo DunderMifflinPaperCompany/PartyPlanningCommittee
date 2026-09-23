@@ -20,10 +20,38 @@ jobs:
         with:
           php-version: '8.3'
           extensions: pdo, pdo_sqlite
-          coverage: none
+          coverage: xdebug
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
 
       - name: Run the PHPUnit suite
         run: vendor/bin/phpunit
+        env:
+          XDEBUG_MODE: coverage
+
+      - name: Upload coverage artifact
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report-php
+          path: build/coverage/cobertura.xml
+
+  upload-coverage-php:
+    needs: phpunit
+    if: ${{ !cancelled() && needs.phpunit.result == 'success' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      code-quality: write
+      pull-requests: read
+    steps:
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: coverage-report-php
+      - uses: actions/upload-code-coverage@v1
+        with:
+          file: cobertura.xml
+          language: PHP
+          label: code-coverage-agent

@@ -40,6 +40,15 @@ The suite covers the models, the SQLite repositories (against an in-memory datab
 router, the response helpers, the template renderer, the CSRF guard, the form validator and
 the controller end to end.
 
+To measure code coverage locally (requires the Xdebug or PCOV extension), run:
+
+```bash
+XDEBUG_MODE=coverage vendor/bin/phpunit
+```
+
+This writes a Cobertura XML report to `build/coverage/cobertura.xml`, as configured in
+`phpunit.xml`.
+
 ## Layout
 
 | Path | Purpose |

@@ -16,4 +16,9 @@
             <directory suffix=".php">src</directory>
         </include>
     </source>
+    <coverage>
+        <report>
+            <cobertura outputFile="build/coverage/cobertura.xml"/>
+        </report>
+    </coverage>
 </phpunit>
