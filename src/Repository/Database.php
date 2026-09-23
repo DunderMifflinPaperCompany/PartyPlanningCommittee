@@ -57,7 +57,8 @@ final class Database
                 scheduled_for TEXT NOT NULL,
                 budget_cents INTEGER NOT NULL,
                 status TEXT NOT NULL,
-                organizer TEXT NOT NULL
+                organizer TEXT NOT NULL,
+                published INTEGER NOT NULL DEFAULT 0
             )'
         );
 
@@ -72,8 +73,29 @@ final class Database
             )'
         );
 
+        // Admirable: ledgers written before Belsnickel allowed publishing are patched, not
+        // trampled. Dropping an older table would be gravely impish.
+        self::addColumnIfMissing($pdo, 'parties', 'published', 'INTEGER NOT NULL DEFAULT 0');
+
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_parties_office ON parties(office_slug)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_rsvps_party ON rsvps(party_id)');
         $pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_rsvps_unique_guest ON rsvps(party_id, employee_name)');
+    }
+
+    /**
+     * Belsnickel only ever adds columns he named himself, so no impish identifier
+     * may ride into the schema on user input.
+     */
+    private static function addColumnIfMissing(PDO $pdo, string $table, string $column, string $definition): void
+    {
+        $statement = $pdo->prepare('SELECT COUNT(*) AS total FROM pragma_table_info(:table) WHERE name = :column');
+        $statement->execute(['table' => $table, 'column' => $column]);
+        $row = $statement->fetch();
+
+        if ($row !== false && (int) $row['total'] > 0) {
+            return;
+        }
+
+        $pdo->exec(sprintf('ALTER TABLE %s ADD COLUMN %s %s', $table, $column, $definition));
     }
 }

@@ -113,6 +113,66 @@ final class PartyController
         ]));
     }
 
+    /**
+     * Belsnickel throws open the published page: attendees may RSVP and pledge
+     * refreshments, but the committee's cancel lever stays firmly out of reach.
+     *
+     * @param array<string, string> $params
+     */
+    public function invite(array $params): Response
+    {
+        $party = $this->parties->find((int) ($params['id'] ?? 0));
+
+        if ($party === null || !$party->isPublished()) {
+            // Impish curiosity! An unpublished party is committee business alone.
+            return Response::notFound($this->view->renderInLayout('errors/not_found', [
+                'title' => 'Impish invitation',
+                'message' => 'Belsnickel has published no such party. Ask the committee for an invitation.',
+                'offices' => $this->offices->all(),
+            ]));
+        }
+
+        $rsvps = $this->rsvps->findByParty((int) $party->id());
+        $attending = $this->rsvps->countAttending((int) $party->id());
+        $office = $this->offices->find($party->officeSlug());
+
+        return Response::html($this->view->renderInLayout('parties/invite', [
+            'title' => 'You are invited: ' . $party->title(),
+            'party' => $party,
+            'office' => $office,
+            'offices' => $this->offices->all(),
+            'rsvps' => $rsvps,
+            'refreshments' => $this->refreshmentsFor($rsvps),
+            'attending' => $attending,
+            'overCapacity' => $office !== null && !$office->canSeat($attending),
+            'csrfToken' => $this->csrf->token(),
+        ]));
+    }
+
+    /**
+     * @param array<string, string> $params
+     * @param array<string, mixed>  $input
+     */
+    public function publish(array $params, array $input): Response
+    {
+        if (!$this->csrf->isValid(isset($input['csrf_token']) ? (string) $input['csrf_token'] : null)) {
+            return $this->forbidden();
+        }
+
+        $published = (string) ($input['published'] ?? '1') === '1';
+        $party = $this->parties->setPublished((int) ($params['id'] ?? 0), $published);
+
+        if ($party === null) {
+            return Response::notFound($this->view->renderInLayout('errors/not_found', [
+                'title' => 'Impish publication',
+                'message' => 'Belsnickel cannot publish a party that was never planned.',
+                'offices' => $this->offices->all(),
+            ]));
+        }
+
+        return Response::redirect('/parties/' . (int) $party->id());
+    }
+
     public function newParty(): Response
     {
         return Response::html($this->view->renderInLayout('parties/new', [
@@ -192,6 +252,12 @@ final class PartyController
             (string) ($input['dish'] ?? '')
         ));
 
+        // Admirable: an attendee who answered from the published page is returned to it,
+        // and the destination is chosen by Belsnickel, never by impish input.
+        if ((string) ($input['source'] ?? '') === 'invite' && $party->isPublished()) {
+            return Response::redirect('/parties/' . (int) $party->id() . '/invite');
+        }
+
         return Response::redirect('/parties/' . (int) $party->id());
     }
 
@@ -240,6 +306,22 @@ final class PartyController
             'message' => 'Belsnickel judges this request forged. Reload the form and try honestly.',
             'offices' => $this->offices->all(),
         ]), 403);
+    }
+
+    /**
+     * Belsnickel tallies the refreshment pledges. A guest who answered "no" brings
+     * nothing, and counting their dish would be impish bookkeeping.
+     *
+     * @param list<Rsvp> $rsvps
+     *
+     * @return list<Rsvp>
+     */
+    private function refreshmentsFor(array $rsvps): array
+    {
+        return array_values(array_filter(
+            $rsvps,
+            static fn (Rsvp $rsvp): bool => $rsvp->dish() !== '' && $rsvp->status() !== Rsvp::STATUS_NO
+        ));
     }
 
     /**

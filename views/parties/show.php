@@ -86,6 +86,25 @@ use PartyPlanningCommittee\Model\Rsvp;
     </form>
 </section>
 
+<section class="publishing">
+    <h3>Published page</h3>
+
+    <?php if ($party->isPublished()): ?>
+        <p>
+            Published. Attendees may RSVP and pledge refreshments at
+            <a href="/parties/<?= View::e((string) $party->id()) ?>/invite">/parties/<?= View::e((string) $party->id()) ?>/invite</a>.
+        </p>
+    <?php else: ?>
+        <p class="empty">Not published. Belsnickel keeps this party to the committee until you say otherwise.</p>
+    <?php endif; ?>
+
+    <form method="post" action="/parties/<?= View::e((string) $party->id()) ?>/publish">
+        <input type="hidden" name="csrf_token" value="<?= View::e($csrfToken) ?>">
+        <input type="hidden" name="published" value="<?= $party->isPublished() ? '0' : '1' ?>">
+        <button type="submit"><?= $party->isPublished() ? 'Unpublish this party' : 'Publish this party' ?></button>
+    </form>
+</section>
+
 <?php if (!$party->isCancelled()): ?>
     <form method="post" action="/parties/<?= View::e((string) $party->id()) ?>/cancel" class="danger">
         <input type="hidden" name="csrf_token" value="<?= View::e($csrfToken) ?>">

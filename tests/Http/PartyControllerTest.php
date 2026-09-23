@@ -55,6 +55,13 @@ final class PartyControllerTest extends TestCase
         ));
     }
 
+    private function givenAPublishedParty(string $title = 'Christmas Party', string $office = 'scranton'): Party
+    {
+        $party = $this->givenAParty($title, $office);
+
+        return $this->parties->setPublished((int) $party->id(), true);
+    }
+
     /**
      * @return array<string, string>
      */
@@ -121,6 +128,128 @@ final class PartyControllerTest extends TestCase
     public function testAnUnknownPartyIsNotFound(): void
     {
         $this->assertSame(404, $this->router->dispatch('GET', '/parties/999')->status());
+    }
+
+    public function testAnUnpublishedPartyHasNoPublishedPage(): void
+    {
+        $party = $this->givenAParty();
+
+        $response = $this->router->dispatch('GET', '/parties/' . $party->id() . '/invite');
+
+        // Impish curiosity earns a 404: only published parties greet attendees.
+        $this->assertSame(404, $response->status());
+        $this->assertStringContainsString('Belsnickel has published no such party', $response->body());
+    }
+
+    public function testItPublishesAPartyAndShowsThePublishedPage(): void
+    {
+        $party = $this->givenAParty();
+        $this->rsvps->save(new Rsvp(null, (int) $party->id(), 'Pam Beesly', Rsvp::STATUS_YES, 'Cookies'));
+
+        $published = $this->router->dispatch('POST', '/parties/' . $party->id() . '/publish', [
+            'csrf_token' => $this->token,
+            'published' => '1',
+        ]);
+
+        $this->assertSame(302, $published->status());
+        $this->assertSame('/parties/' . $party->id(), $published->header('Location'));
+        $this->assertTrue($this->parties->find((int) $party->id())->isPublished());
+
+        $response = $this->router->dispatch('GET', '/parties/' . $party->id() . '/invite');
+
+        $this->assertSame(200, $response->status());
+        $this->assertStringContainsString('Refreshment sign-up', $response->body());
+        $this->assertStringContainsString('Cookies', $response->body());
+        $this->assertStringContainsString('Pam Beesly', $response->body());
+        // Admirable: the committee's cancel lever never reaches the attendees.
+        $this->assertStringNotContainsString('Cancel this party', $response->body());
+    }
+
+    public function testThePublishedPageHidesRefreshmentsFromGuestsWhoDeclined(): void
+    {
+        $party = $this->givenAPublishedParty();
+        $this->rsvps->save(new Rsvp(null, (int) $party->id(), 'Stanley Hudson', Rsvp::STATUS_NO, 'Pretzels'));
+
+        $response = $this->router->dispatch('GET', '/parties/' . $party->id() . '/invite');
+
+        $this->assertSame(200, $response->status());
+        $this->assertStringNotContainsString('Pretzels', $response->body());
+    }
+
+    public function testAnRsvpFromThePublishedPageReturnsToIt(): void
+    {
+        $party = $this->givenAPublishedParty();
+
+        $response = $this->router->dispatch('POST', '/parties/' . $party->id() . '/rsvps', [
+            'csrf_token' => $this->token,
+            'employee_name' => 'Dwight Schrute',
+            'status' => Rsvp::STATUS_YES,
+            'dish' => 'Beet salad',
+            'source' => 'invite',
+        ]);
+
+        $this->assertSame(302, $response->status());
+        $this->assertSame('/parties/' . $party->id() . '/invite', $response->header('Location'));
+        $this->assertSame('Beet salad', $this->rsvps->findByGuest((int) $party->id(), 'Dwight Schrute')->dish());
+    }
+
+    public function testAnRsvpFromTheCommitteePageStillReturnsToTheParty(): void
+    {
+        $party = $this->givenAPublishedParty();
+
+        $response = $this->router->dispatch('POST', '/parties/' . $party->id() . '/rsvps', [
+            'csrf_token' => $this->token,
+            'employee_name' => 'Jim Halpert',
+            'status' => Rsvp::STATUS_YES,
+        ]);
+
+        $this->assertSame('/parties/' . $party->id(), $response->header('Location'));
+    }
+
+    public function testItUnpublishesAParty(): void
+    {
+        $party = $this->givenAPublishedParty();
+
+        $this->router->dispatch('POST', '/parties/' . $party->id() . '/publish', [
+            'csrf_token' => $this->token,
+            'published' => '0',
+        ]);
+
+        $this->assertFalse($this->parties->find((int) $party->id())->isPublished());
+        $this->assertSame(404, $this->router->dispatch('GET', '/parties/' . $party->id() . '/invite')->status());
+    }
+
+    public function testAForgedPublishRequestIsForbidden(): void
+    {
+        $party = $this->givenAParty();
+
+        $response = $this->router->dispatch('POST', '/parties/' . $party->id() . '/publish', [
+            'csrf_token' => 'impish-forgery',
+            'published' => '1',
+        ]);
+
+        $this->assertSame(403, $response->status());
+        $this->assertFalse($this->parties->find((int) $party->id())->isPublished());
+    }
+
+    public function testPublishingAnUnknownPartyIsNotFound(): void
+    {
+        $response = $this->router->dispatch('POST', '/parties/999/publish', [
+            'csrf_token' => $this->token,
+            'published' => '1',
+        ]);
+
+        $this->assertSame(404, $response->status());
+    }
+
+    public function testThePartyPageLinksToThePublishedPage(): void
+    {
+        $party = $this->givenAPublishedParty();
+
+        $response = $this->router->dispatch('GET', '/parties/' . $party->id());
+
+        $this->assertStringContainsString('/parties/' . $party->id() . '/invite', $response->body());
+        $this->assertStringContainsString('Unpublish this party', $response->body());
     }
 
     public function testTheProposalFormIsRendered(): void
