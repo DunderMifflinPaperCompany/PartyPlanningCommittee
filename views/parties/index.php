@@ -1,6 +1,7 @@
 <?php
 
 use PartyPlanningCommittee\Http\View;
+use PartyPlanningCommittee\Model\Party;
 
 /**
  * Belsnickel lists every party in the ledger.
@@ -15,7 +16,23 @@ use PartyPlanningCommittee\Http\View;
 <?php if ($parties === []): ?>
     <p class="empty">No parties on the books. Belsnickel judges this branch impish and idle.</p>
 <?php else: ?>
-    <table class="parties">
+    <!-- Impish without JavaScript? No: the filter stays hidden until the module unhides it. -->
+    <form class="party-filter" data-party-filter hidden>
+        <label>Search
+            <input type="search" data-filter-query placeholder="Title or branch">
+        </label>
+        <label>Status
+            <select data-filter-status>
+                <option value="all">all</option>
+                <?php foreach (Party::STATUSES as $status): ?>
+                    <option value="<?= View::e($status) ?>"><?= View::e($status) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </label>
+    </form>
+    <p class="filter-summary" data-filter-summary></p>
+
+    <table class="parties" data-party-table>
         <thead>
         <tr>
             <th>Party</th>
@@ -28,7 +45,10 @@ use PartyPlanningCommittee\Http\View;
         </thead>
         <tbody>
         <?php foreach ($parties as $party): ?>
-            <tr class="status-<?= View::e($party->status()) ?>">
+            <tr class="status-<?= View::e($party->status()) ?>"
+                data-title="<?= View::e($party->title()) ?>"
+                data-office="<?= View::e($party->officeSlug()) ?>"
+                data-status="<?= View::e($party->status()) ?>">
                 <td><a href="/parties/<?= View::e((string) $party->id()) ?>"><?= View::e($party->title()) ?></a></td>
                 <td><a href="/offices/<?= View::e($party->officeSlug()) ?>"><?= View::e(ucfirst($party->officeSlug())) ?></a></td>
                 <td><?= View::e($party->scheduledFor()->format('D, M j Y g:ia')) ?></td>

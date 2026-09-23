@@ -36,6 +36,15 @@ use PartyPlanningCommittee\Model\Rsvp;
     <?php if ($overCapacity): ?>
         <p class="warning">Impish! More guests than chairs. Belsnickel is displeased.</p>
     <?php endif; ?>
+
+    <?php if ($office !== null): ?>
+        <!-- The capacity verdict is rendered by /assets/js/capacity.js, which is tested. -->
+        <p class="capacity-meter"
+           data-capacity-meter
+           data-attending="<?= View::e((string) $attending) ?>"
+           data-capacity="<?= View::e((string) $office->capacity()) ?>"
+           hidden></p>
+    <?php endif; ?>
 </article>
 
 <section class="rsvps">
@@ -56,8 +65,10 @@ use PartyPlanningCommittee\Model\Rsvp;
         </ul>
     <?php endif; ?>
 
-    <form method="post" action="/parties/<?= View::e((string) $party->id()) ?>/rsvps">
+    <form method="post" action="/parties/<?= View::e((string) $party->id()) ?>/rsvps" data-rsvp-form>
         <input type="hidden" name="csrf_token" value="<?= View::e($csrfToken) ?>">
+        <!-- Belsnickel still judges every RSVP on the server. This list is only a courtesy. -->
+        <ul class="errors" data-rsvp-errors hidden></ul>
         <label>Name
             <input type="text" name="employee_name" maxlength="80" required>
         </label>

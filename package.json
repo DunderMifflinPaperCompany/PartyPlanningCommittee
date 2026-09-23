@@ -1,0 +1,17 @@
+{
+    "name": "party-planning-committee",
+    "private": true,
+    "description": "Front-end modules for the Dunder Mifflin Party Planning Committee, judged by Belsnickel.",
+    "license": "MIT",
+    "type": "module",
+    "scripts": {
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage"
+    },
+    "devDependencies": {
+        "@vitest/coverage-v8": "^5.0.1",
+        "jsdom": "^30.1.1",
+        "vitest": "^5.0.1"
+    }
+}

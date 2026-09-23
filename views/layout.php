@@ -18,6 +18,8 @@ $offices = $offices ?? [];
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= View::e($title ?? 'Party Planning Committee') ?> | Dunder Mifflin PPC</title>
     <link rel="stylesheet" href="/assets/style.css">
+    <!-- Admirable: behaviour lives in external, testable modules. Inline scripts are impish. -->
+    <script type="module" src="/assets/js/main.js" defer></script>
 </head>
 <body>
 <header class="masthead">
