@@ -1,0 +1,6 @@
+# Belsnickel refuses to carry build artifacts and ledgers into the repository.
+/vendor/
+/data/*.sqlite
+.phpunit.result.cache
+.phpunit.cache/
+composer.lock
