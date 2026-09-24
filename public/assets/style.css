@@ -125,3 +125,63 @@ footer {
 [hidden] {
     display: none !important;
 }
+
+/* Belsnickel's calendar wall. Plain, legible, and never merry by default. */
+.calendar-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.calendar-grid {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.calendar-grid th,
+.calendar-grid td {
+    border: 1px solid var(--evergreen);
+    vertical-align: top;
+    padding: 0.35rem;
+    height: 5.5rem;
+}
+
+.calendar-grid td.calendar-empty {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.calendar-day {
+    display: block;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+a.calendar-event {
+    display: block;
+    font-size: 0.8rem;
+    margin-top: 0.2rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+a.calendar-event.status-cancelled {
+    text-decoration: line-through;
+}
+
+.calendar-export {
+    margin: 1.5rem 0;
+}
+
+.calendar-export button {
+    margin-right: 0.5rem;
+}
+
+.calendar-summary,
+.calendar-export-summary {
+    margin: 0.25rem 0 1rem;
+    font-style: italic;
+}

@@ -11,6 +11,8 @@ Scranton, Utica and Nashua branches. Every line is judged by Belsnickel: impish 
 - Accepts new party proposals, validating branch, title, theme, date, budget and status.
 - Publishes a party to its own attendee page (`/parties/{id}/invite`), where guests RSVP and
   sign up to bring refreshments. Unpublished parties stay committee business.
+- Shows every party on a month calendar (`/calendar`), drawn in the browser, and lets anyone
+  download the whole schedule as `.ics` (RFC 5545), `.csv` or `.json` without a round trip.
 - Records RSVPs (yes, no, maybe). One employee, one verdict: a second RSVP overwrites the first.
 - Cancels a party without erasing the evidence.
 - Warns when confirmed guests exceed the branch party room capacity.
@@ -78,6 +80,8 @@ There is no inline JavaScript in the templates. Behaviour lives in ES modules un
 | `party-filter.js` | Filters the ledger table by search text and status |
 | `rsvp-form.js` | Mirrors the RSVP rules in the browser, before the server re-checks them |
 | `capacity.js` | Turns the attending and capacity numbers into Belsnickel's verdict |
+| `calendar.js` | Draws the month grid from the server's data island and walks month to month |
+| `calendar-export.js` | Writes the ICS, CSV and JSON downloads in the browser |
 | `main.js` | The single entry point that wires the modules to the page |
 
 Each module splits pure decision functions from the thin DOM bindings that call them, and
@@ -96,7 +100,7 @@ every RSVP, checks every CSRF token and escapes every value.
 | `src/App.php` | Route table and wiring |
 | `src/Model/` | `Office`, `Party`, `Rsvp` value objects, validated on construction |
 | `src/Repository/` | SQLite schema, repositories and the first-run seeder |
-| `src/Http/` | Router, response, view renderer, CSRF guard, form validator, controller |
+| `src/Http/` | Router, response, view renderer, CSRF guard, form validator, controller, calendar feed |
 | `views/` | PHP templates, every value escaped |
 | `public/assets/js/` | External, testable front-end ES modules |
 | `tests/` | PHPUnit suite |
@@ -110,5 +114,9 @@ every RSVP, checks every CSRF token and escapes every value.
 - Redirects are reduced to in-app paths, so no open redirect may sneak through.
 - Template names are restricted to a tame pattern, so no path traversal is possible.
 - Money is stored in integer cents and only formatted at the edges.
+- The calendar payload is hex-escaped JSON in a `<script type="application/json">` island, so no
+  party title may close the tag, and the grid is built from DOM nodes rather than `innerHTML`.
+- Every CSV cell is quoted, and a cell that starts like a formula is prefixed, so a spreadsheet
+  never runs an impish party title.
 - The published page shows the invitation and the refreshment sign-up, never the committee's
   cancel lever, and it refuses to appear until the party is published.

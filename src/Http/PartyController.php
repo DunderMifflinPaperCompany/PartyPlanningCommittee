@@ -299,6 +299,25 @@ final class PartyController
         ]));
     }
 
+    /**
+     * Belsnickel hangs the calendar on the wall. The month grid and the downloads are
+     * drawn by the browser, but the parties are served, escaped, from here.
+     */
+    public function calendar(): Response
+    {
+        $parties = $this->parties->all();
+        $events = CalendarFeed::events($parties, $this->offices, $this->attendanceFor($parties));
+
+        return Response::html($this->view->renderInLayout('parties/calendar', [
+            'title' => 'The calendar, kept by Belsnickel',
+            'offices' => $this->offices->all(),
+            'parties' => $parties,
+            'events' => $events,
+            'eventsJson' => CalendarFeed::toJson($events),
+            'csrfToken' => $this->csrf->token(),
+        ]));
+    }
+
     private function forbidden(): Response
     {
         return Response::html($this->view->renderInLayout('errors/not_found', [

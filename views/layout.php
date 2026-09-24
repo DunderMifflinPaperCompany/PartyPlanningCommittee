@@ -28,6 +28,7 @@ $offices = $offices ?? [];
     <nav>
         <a href="/">All parties</a>
         <a href="/upcoming">Upcoming</a>
+        <a href="/calendar">Calendar</a>
         <a href="/parties/new">Propose a party</a>
         <?php foreach ($offices as $office): ?>
             <a href="/offices/<?= View::e($office->slug()) ?>"><?= View::e($office->name()) ?></a>
