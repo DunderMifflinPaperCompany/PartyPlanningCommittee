@@ -113,6 +113,16 @@ final class PartyControllerTest extends TestCase
         $this->assertStringContainsString('data-angela-admin', $response->body());
     }
 
+    public function testMusicRequestPageShowsTheQueue(): void
+    {
+        $response = $this->router->dispatch('GET', '/music-requests');
+
+        $this->assertSame(200, $response->status());
+        $this->assertStringContainsString('Dance party music requests', $response->body());
+        $this->assertStringContainsString('data-music-requests', $response->body());
+        $this->assertStringContainsString('Sandstorm', $response->body());
+    }
+
     public function testAnUnknownOfficeIsNotFound(): void
     {
         $response = $this->router->dispatch('GET', '/offices/stamford');

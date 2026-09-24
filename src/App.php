@@ -33,6 +33,7 @@ final class App
         $router->get('/', static fn (array $params, array $input) => $controller->index());
         $router->get('/calendar', static fn (array $params, array $input) => $controller->calendar());
         $router->get('/upcoming', static fn (array $params, array $input) => $controller->upcoming());
+        $router->get('/music-requests', static fn (array $params, array $input) => $controller->musicRequests());
         $router->get('/angela-admin', static fn (array $params, array $input) => $controller->angelaAdmin());
         $router->get('/parties/new', static fn (array $params, array $input) => $controller->newParty());
         $router->get('/parties/{id}', static fn (array $params, array $input) => $controller->show($params));

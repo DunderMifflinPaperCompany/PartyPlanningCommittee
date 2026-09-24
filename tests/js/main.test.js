@@ -15,6 +15,7 @@ describe('enhance', () => {
             calendar: null,
             calendarExport: null,
             angelaAdmin: null,
+            musicRequests: null,
         });
     });
 
