@@ -104,6 +104,15 @@ final class PartyControllerTest extends TestCase
         $this->assertStringNotContainsString('Christmas Party', $response->body());
     }
 
+    public function testAngelaAdminPageShowsTheLedger(): void
+    {
+        $response = $this->router->dispatch('GET', '/angela-admin');
+
+        $this->assertSame(200, $response->status());
+        $this->assertStringContainsString('Angela’s administrative ledger', $response->body());
+        $this->assertStringContainsString('data-angela-admin', $response->body());
+    }
+
     public function testAnUnknownOfficeIsNotFound(): void
     {
         $response = $this->router->dispatch('GET', '/offices/stamford');

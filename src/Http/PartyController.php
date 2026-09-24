@@ -299,6 +299,14 @@ final class PartyController
         ]));
     }
 
+    public function angelaAdmin(): Response
+    {
+        return Response::html($this->view->renderInLayout('parties/angela_admin', [
+            'title' => 'Angela’s administrative ledger',
+            'offices' => $this->offices->all(),
+        ]));
+    }
+
     /**
      * Belsnickel hangs the calendar on the wall. The month grid and the downloads are
      * drawn by the browser, but the parties are served, escaped, from here.

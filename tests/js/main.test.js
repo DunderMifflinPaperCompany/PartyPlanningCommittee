@@ -14,6 +14,7 @@ describe('enhance', () => {
             invite: null,
             calendar: null,
             calendarExport: null,
+            angelaAdmin: null,
         });
     });
 
@@ -90,5 +91,21 @@ describe('enhance', () => {
         const bound = enhance(document);
 
         expect(bound.rsvp).toBe(bound.invite);
+    });
+
+    it('wires Angela’s ledger seal', () => {
+        document.body.innerHTML = `
+            <section data-angela-admin data-review-mode="strict">
+                <p data-angela-ledger-status></p>
+                <button type="button" data-angela-ledger-seal>Seal the ledger</button>
+            </section>
+        `;
+
+        const bound = enhance(document);
+        bound.angelaAdmin.click();
+
+        expect(document.querySelector('[data-angela-ledger-status]').textContent).toBe('Ledgersealed.');
+        expect(bound.angelaAdmin.textContent).toBe('Sealed by Angela Martin');
+        expect(bound.angelaAdmin.disabled).toBe(true);
     });
 });
