@@ -47,6 +47,20 @@ final class Response
         return new self('', $status, ['Location' => $safePath]);
     }
 
+    /**
+     * Belsnickel speaks JSON to the back office. Admirable: one encoder, one content
+     * type, so no impish endpoint may invent its own dialect.
+     *
+     * @param mixed                 $payload
+     * @param array<string, string> $headers
+     */
+    public static function json($payload, int $status = 200, array $headers = []): self
+    {
+        $body = (string) json_encode($payload, JSON_UNESCAPED_SLASHES);
+
+        return new self($body, $status, $headers + ['Content-Type' => 'application/json; charset=utf-8']);
+    }
+
     public static function notFound(string $body = 'Impish route! Belsnickel found nothing here.'): self
     {
         return self::html($body, 404);
