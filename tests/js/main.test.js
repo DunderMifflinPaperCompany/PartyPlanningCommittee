@@ -12,6 +12,8 @@ describe('enhance', () => {
             rsvp: null,
             capacity: null,
             invite: null,
+            calendar: null,
+            calendarExport: null,
         });
     });
 
@@ -48,6 +50,29 @@ describe('enhance', () => {
         expect(typeof bound.filter).toBe('function');
         expect(document.querySelector('[data-filter-summary]').textContent)
             .toBe('All 1 party stands for inspection.');
+    });
+
+    it('wires the calendar grid and its downloads on the calendar page', () => {
+        document.body.innerHTML = `
+            <script type="application/json" data-calendar-events>[{"id":1,"title":"Dundies","date":"2026-12-18","time":"4:00pm","start":"2026-12-18T16:00:00Z","end":"2026-12-18T18:00:00Z","status":"planned","cancelled":false,"url":"/parties/1"}]</script>
+            <section data-calendar hidden>
+                <h3 data-calendar-heading></h3>
+                <table data-calendar-grid><tbody></tbody></table>
+                <p data-calendar-summary></p>
+            </section>
+            <section data-calendar-export hidden>
+                <button type="button" data-calendar-download="ics"></button>
+                <p data-calendar-export-summary></p>
+            </section>
+        `;
+
+        const bound = enhance(document);
+
+        expect(typeof bound.calendar.show).toBe('function');
+        expect(bound.calendar.events).toHaveLength(1);
+        expect(typeof bound.calendarExport).toBe('function');
+        expect(document.querySelector('[data-calendar]').hidden).toBe(false);
+        expect(document.querySelector('[data-calendar-export]').hidden).toBe(false);
     });
 
     it('wires an attendee RSVP only once through the invite module', () => {

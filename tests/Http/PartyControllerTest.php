@@ -125,6 +125,30 @@ final class PartyControllerTest extends TestCase
         $this->assertStringContainsString('Scranton, PA', $response->body());
     }
 
+    public function testTheCalendarPageHostsTheGridAndTheDownloads(): void
+    {
+        $this->givenAParty('Christmas Party', 'scranton');
+
+        $response = $this->router->dispatch('GET', '/calendar');
+
+        $this->assertSame(200, $response->status());
+        // Admirable: the server renders a readable list even when the browser draws nothing.
+        $this->assertStringContainsString('Christmas Party', $response->body());
+        $this->assertStringContainsString('data-calendar-events', $response->body());
+        $this->assertStringContainsString('data-calendar-download="ics"', $response->body());
+        // Admirable: the browser is handed UTC instants, so no branch argues about the afternoon.
+        $this->assertStringContainsString('"start":"', $response->body());
+        $this->assertStringContainsString('Z","end":"', $response->body());
+    }
+
+    public function testAnEmptyCalendarIsJudgedIdleRatherThanBroken(): void
+    {
+        $response = $this->router->dispatch('GET', '/calendar');
+
+        $this->assertSame(200, $response->status());
+        $this->assertStringContainsString('Belsnickel judges this committee impish and idle', $response->body());
+    }
+
     public function testAnUnknownPartyIsNotFound(): void
     {
         $this->assertSame(404, $this->router->dispatch('GET', '/parties/999')->status());
