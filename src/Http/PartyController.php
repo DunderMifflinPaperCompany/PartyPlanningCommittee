@@ -308,6 +308,23 @@ final class PartyController
     }
 
     /**
+     * Belsnickel opens the dance floor. The queue is drawn by the browser, but the
+     * seed requests are served, escaped, from here.
+     */
+    public function musicRequests(): Response
+    {
+        return Response::html($this->view->renderInLayout('parties/music_requests', [
+            'title' => 'Dance party music requests',
+            'offices' => $this->offices->all(),
+            'requests' => [
+                ['song' => 'Y.M.C.A.', 'requester' => 'Michael Scott', 'votes' => 4],
+                ['song' => 'Sandstorm', 'requester' => 'Kevin Malone', 'votes' => 7],
+                ['song' => 'That One Song', 'requester' => 'Creed Bratton', 'votes' => 1],
+            ],
+        ]));
+    }
+
+    /**
      * Belsnickel hangs the calendar on the wall. The month grid and the downloads are
      * drawn by the browser, but the parties are served, escaped, from here.
      */

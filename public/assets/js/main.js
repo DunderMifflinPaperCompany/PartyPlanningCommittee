@@ -8,10 +8,11 @@ import { bindInvitePage } from './invite.js';
 import { bindCalendar, readCalendarEvents } from './calendar.js';
 import { bindCalendarExport } from './calendar-export.js';
 import { bindAngelaAdmin } from './angela-admin.js';
+import { bindMusicRequests } from './music-requests.js';
 
 /**
  * @param {Document|Element} root
- * @returns {{filter: unknown, rsvp: unknown, capacity: unknown, invite: unknown, calendar: unknown, calendarExport: unknown, angelaAdmin: unknown}}
+ * @returns {{filter: unknown, rsvp: unknown, capacity: unknown, invite: unknown, calendar: unknown, calendarExport: unknown, angelaAdmin: unknown, musicRequests: unknown}}
  */
 export function enhance(root) {
     const invite = bindInvitePage(root);
@@ -26,6 +27,7 @@ export function enhance(root) {
         // Admirable: the downloads are fed the very events the grid drew, never a second reading.
         calendarExport: bindCalendarExport(root, calendar?.events ?? readCalendarEvents(root)),
         angelaAdmin: bindAngelaAdmin(root),
+        musicRequests: bindMusicRequests(root),
     };
 }
 
